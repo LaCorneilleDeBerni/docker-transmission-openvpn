@@ -16,6 +16,8 @@ echo "Modifying $CONFIG for best behaviour in this container"
 
 CONFIG_MOD_USERPASS=${CONFIG_MOD_USERPASS:-"1"}
 CONFIG_MOD_CA_CERTS=${CONFIG_MOD_CA_CERTS:-"1"}
+CONFIG_MOD_CERT_CERTS=${CONFIG_MOD_CERT_CERTS:-"1"}
+CONFIG_MOD_KEY_CERTS=${CONFIG_MOD_KEY_CERTS:-"1"}
 CONFIG_MOD_PING=${CONFIG_MOD_PING:-"1"}
 CONFIG_MOD_RESOLV_RETRY=${CONFIG_MOD_RESOLV_RETRY:-"1"}
 CONFIG_MOD_TLS_CERTS=${CONFIG_MOD_TLS_CERTS:-"1"}
@@ -38,6 +40,28 @@ if [[ $CONFIG_MOD_CA_CERTS == "1" ]]; then
     # ca /etc/openvpn/mullvad/ca.crt
     # ca ca.ipvanish.com.crt
     sed -i -E "s#ca\s+(.*/)*#ca $config_directory/#g" "$CONFIG"
+fi
+
+## Option 2 - Change the ca certificate path to point relative to the provider home
+if [[ $CONFIG_MOD_CERT_CERTS == "1" ]]; then
+    echo "Modification: Change cert certificate path"
+    config_directory=$(dirname "$CONFIG")
+
+    # Some configs are already adjusted, need to handle both relative and absolute paths, like:
+    # ca /etc/openvpn/mullvad/ca.crt
+    # ca ca.ipvanish.com.crt
+    sed -i -E "s#cert\s+(.*/)*#ca $config_directory/#g" "$CONFIG"
+fi
+
+## Option 2 - Change the ca certificate path to point relative to the provider home
+if [[ $CONFIG_MOD_KEY_CERTS == "1" ]]; then
+    echo "Modification: Change key certificate path"
+    config_directory=$(dirname "$CONFIG")
+
+    # Some configs are already adjusted, need to handle both relative and absolute paths, like:
+    # ca /etc/openvpn/mullvad/ca.crt
+    # ca ca.ipvanish.com.crt
+    sed -i -E "s#key\s+(.*/)*#ca $config_directory/#g" "$CONFIG"
 fi
 
 ## Option 3 - Update ping options to exit the container, so Docker will restart it
